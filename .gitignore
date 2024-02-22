@@ -1,2 +1,6 @@
+.dfx
+.azle
+dist
 node_modules
+
 .env*
