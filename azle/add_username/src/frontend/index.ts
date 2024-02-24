@@ -3,9 +3,8 @@ import { customElement, property } from "lit/decorators.js";
 
 @customElement("azle-app")
 export class AzleApp extends LitElement {
-  @property()
-  db = {};
-  @property() username = ""; // Property to hold the username from the input field
+  @property() db: any = {};
+  @property() username: string = ""; // Property to hold the username from the input field
 
   constructor() {
     super();
@@ -24,6 +23,10 @@ export class AzleApp extends LitElement {
   }
 
   async addUser() {
+    if (this.db.includes(this.username)) {
+      return;
+    }
+
     this.db = "Loading...";
 
     const response = await fetch(
@@ -37,6 +40,7 @@ export class AzleApp extends LitElement {
       },
     );
     const responseJson = await response.json();
+    console.log(responseJson);
 
     this.db = responseJson;
     this.username = ""; // Clear the username after adding
