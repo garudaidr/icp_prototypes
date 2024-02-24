@@ -49,7 +49,7 @@ export class AzleApp extends LitElement {
 
   render() {
     return html`
-      <h1>Azle Hello World</h1>
+      <h1>Azle Add Usernames</h1>
 
       <div>db: ${JSON.stringify(this.db)}</div>
 
