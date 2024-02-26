@@ -49,7 +49,7 @@ export default Canister({
 
       state.db.run(insertSql, [username]);
     } catch (error) {
-        throw `Error inserting user: ${JSON.stringify(error)}`;
+      throw `Error inserting user: ${JSON.stringify(error)}`;
     }
 
     return queryUsernames(state.db);
