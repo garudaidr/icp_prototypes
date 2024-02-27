@@ -8,12 +8,39 @@
       "build": "npx azle backend",
       "wasm": ".azle/backend/backend.wasm",
       "gzip": true,
-      "assets": [["src/frontend/dist", "dist"]],
+      "declarations": {
+        "output": "test/dfx_generated/backend",
+        "node_compatibility": true
+      },
+      "env": ["DATABASE_CANISTER_PRINCIPAL", "AZLE_TEST_FETCH"],
+      "assets": [["src/frontend/dist", "dist", "src/database/index.did"]],
       "build_assets": "npm run build",
       "metadata": [
         {
           "name": "candid:service",
           "path": "src/backend/index.did"
+        },
+        {
+          "name": "cdk:name",
+          "content": "azle"
+        }
+      ]
+    },
+    "database": {
+      "type": "custom",
+      "main": "src/database/index.ts",
+      "candid": "src/database/index.did",
+      "build": "npx azle database",
+      "wasm": ".azle/database/database.wasm",
+      "gzip": true,
+      "declarations": {
+        "output": "test/dfx_generated/database",
+        "node_compatibility": true
+      },
+      "metadata": [
+        {
+          "name": "candid:service",
+          "path": "src/database/index.did"
         },
         {
           "name": "cdk:name",

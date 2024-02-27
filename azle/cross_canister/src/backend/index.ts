@@ -1,4 +1,4 @@
-import { ic, Principal } from "azle";
+import { ic, Principal, serialize } from "azle";
 import DatabaseCanister from "../database";
 import { Server } from "azle";
 import express from "express";
@@ -6,11 +6,7 @@ import express from "express";
 let database: typeof DatabaseCanister;
 
 function getDatabaseCanisterPrincipal(): string {
-  if (process.env.DATABASE_CANISTER_PRINCIPAL !== undefined) {
-    return process.env.DATABASE_CANISTER_PRINCIPAL;
-  }
-
-  throw new Error(`process.env.DATABASE_CANISTER_PRINCIPAL is not defined`);
+  return "bd3sg-teaaa-aaaaa-qaaba-cai";
 }
 
 function inititalizeCanister(): void {
@@ -30,7 +26,26 @@ export default Server(() => {
       inititalizeCanister();
     }
 
-    let usernames = await ic.call(database.users);
+    let usernames = [];
+    if (process.env.AZLE_TEST_FETCH === "true") {
+      const response = await fetch(
+        `icp://${getDatabaseCanisterPrincipal()}/users`,
+        {
+          body: serialize({
+            candidPath: "/src/database/index.did",
+            args: [],
+          }),
+        },
+      );
+      const responseJson = await response.json();
+
+      usernames = responseJson;
+    } else {
+      usernames = await ic.call(database.users, {
+        args: [],
+      });
+    }
+
     res.json(usernames);
   });
 
@@ -40,7 +55,26 @@ export default Server(() => {
       inititalizeCanister();
     }
 
-    let usernames = await ic.call(database.add_user, req.body.username);
+    let usernames = [];
+    if (process.env.AZLE_TEST_FETCH === "true") {
+      const response = await fetch(
+        `icp://${getDatabaseCanisterPrincipal()}/add_user`,
+        {
+          body: serialize({
+            candidPath: "/src/database/index.did",
+            args: [],
+          }),
+        },
+      );
+      const responseJson = await response.json();
+
+      usernames = responseJson;
+    } else {
+      usernames = await ic.call(database.add_user, {
+        args: [req.body.username],
+      });
+    }
+
     res.json(usernames);
   });
 

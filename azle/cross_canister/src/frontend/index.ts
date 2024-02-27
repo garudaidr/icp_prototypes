@@ -17,6 +17,7 @@ export class AzleApp extends LitElement {
     const response = await fetch(
       `${import.meta.env.VITE_CANISTER_ORIGIN}/users`,
     );
+    console.log(response);
     const responseJson = await response.json();
 
     this.db = responseJson;

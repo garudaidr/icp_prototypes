@@ -1,0 +1,4 @@
+service: () -> {
+    add_user: (text) -> (vec text);
+    users: () -> (vec text) query;
+}
