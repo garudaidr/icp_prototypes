@@ -1,0 +1,11 @@
+type AccountItem =
+    record {
+        id: text;
+        balance: float64;
+    };
+
+service: {
+    top_up: (float64) -> ();
+    withdraw: (float64) -> ();
+    check_balance: () -> (float64);
+}
