@@ -14,7 +14,8 @@
     "start": "webpack serve --mode development --env development",
     "deploy:local": "dfx deploy --network=local",
     "deploy:ic": "dfx deploy --network=ic",
-    "generate": "dfx generate rbank_backend"
+    "generate": "dfx generate rbank_backend",
+    "format": "cargo fmt && prettier --write ."
   },
   "dependencies": {
     "@dfinity/agent": "^1.0.1",
@@ -26,6 +27,7 @@
     "buffer": "6.0.3",
     "copy-webpack-plugin": "^11.0.0",
     "dotenv": "^16.0.3",
+    "prettier": "^3.2.5",
     "events": "3.3.0",
     "html-webpack-plugin": "5.5.0",
     "process": "0.11.10",

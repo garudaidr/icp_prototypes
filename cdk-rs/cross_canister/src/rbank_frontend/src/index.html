@@ -1,27 +1,33 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
 
+<html>
   <head>
-    <title>DBank</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link type="text/css" rel="stylesheet" href="main.css" />
- 
+    <title>Add Usernames</title>
+
+    <script src="index.js"></script>
   </head>
 
   <body>
-    <div class="container">
-      <img src="dbank_logo.png" alt="DBank logo" width="100"/>
-      <h1>Current Balance: $<span id="value"></span></h1>
-      <div class="divider"></div>
-      <form action="#">
-      <h2>Amount to Top Up</h2>
-      <input id="input-amount" type="number" step="0.01" min=0 name="topUp" value=""/>
-      <h2>Amount to Withdraw</h2>
-      <input id="withdrawal-amount" type="number" name="withdraw" step="0.01" min=0 value=""/>
-      <input id="submit-btn" type="submit" value="Finalise Transaction" />
-    </form>
+    <h1>Azle Add Usernames</h1>
+
+    <div>db: ${JSON.stringify(this.db)}</div>
+
+    <br />
+
+    <div>
+      <button @click="${this.getUser}">Test /users</button>
+    </div>
+
+    <br />
+
+    <div>
+      <input
+        type="text"
+        .value="${this.username}"
+        @input="${this.handleInput}"
+        placeholder="Enter username"
+      />
+      <button @click="${this.addUser}">Test /users/add</button>
     </div>
   </body>
-
 </html>

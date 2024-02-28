@@ -1,4 +1,4 @@
-import { rbank_backend } from '../../declarations/rbank_backend';
+import { rbank_backend } from "../../declarations/rbank_backend";
 
 window.addEventListener("load", async () => {
   //console.log("finished loading");
@@ -19,9 +19,11 @@ document.querySelector("form").addEventListener("submit", async (e) => {
   if (document.getElementById("input-amount").value.length != 0) {
     await rbank_backend.top_up(inputAmount);
   }
-  
-  const outputAmount = parseFloat(document.getElementById("withdrawal-amount").value);
-  
+
+  const outputAmount = parseFloat(
+    document.getElementById("withdrawal-amount").value,
+  );
+
   if (document.getElementById("withdrawal-amount").value.length != 0) {
     await rbank_backend.withdraw(outputAmount);
   }
@@ -35,9 +37,10 @@ document.querySelector("form").addEventListener("submit", async (e) => {
   // const result = await rbank.deposit(amount);
   // console.log("deposit result", result);
   // window.location.reload();
-} );
+});
 
 async function update() {
   const currentAmount = await rbank_backend.check_balance();
-  document.getElementById("value").innerText = Math.round(currentAmount * 100) / 100; // round to 2 decimal places
+  document.getElementById("value").innerText =
+    Math.round(currentAmount * 100) / 100; // round to 2 decimal places
 }
