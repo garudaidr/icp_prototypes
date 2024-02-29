@@ -1,5 +1,6 @@
 [workspace]
 members = [
-    "src/rbank_backend",
+    "src/backend",
+    "src/database",
 ]
 resolver = "2"
