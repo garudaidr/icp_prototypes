@@ -1,33 +1,25 @@
 <!doctype html>
-
 <html>
   <head>
     <title>Add Usernames</title>
-
-    <script src="index.js"></script>
+    <script src="index.js" defer></script>
   </head>
-
   <body>
     <h1>Azle Add Usernames</h1>
 
-    <div>db: ${JSON.stringify(this.db)}</div>
+    <div id="dbDisplay">db: {}</div>
 
     <br />
 
     <div>
-      <button @click="${this.getUser}">Test /users</button>
+      <button id="getUserBtn">Test /users</button>
     </div>
 
     <br />
 
     <div>
-      <input
-        type="text"
-        .value="${this.username}"
-        @input="${this.handleInput}"
-        placeholder="Enter username"
-      />
-      <button @click="${this.addUser}">Test /users/add</button>
+      <input type="text" id="usernameInput" placeholder="Enter username" />
+      <button id="addUserBtn">Test /users/add</button>
     </div>
   </body>
 </html>

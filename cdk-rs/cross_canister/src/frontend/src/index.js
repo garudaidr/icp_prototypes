@@ -1,46 +1,56 @@
-import { rbank_backend } from "../../declarations/rbank_backend";
+document.addEventListener("DOMContentLoaded", () => {
+  let db = {};
+  let username = "";
 
-window.addEventListener("load", async () => {
-  //console.log("finished loading");
-  await update();
+  const dbDisplay = document.getElementById("dbDisplay");
+  const usernameInput = document.getElementById("usernameInput");
+  const getUserBtn = document.getElementById("getUserBtn");
+  const addUserBtn = document.getElementById("addUserBtn");
+
+  const updateDbDisplay = () => {
+    dbDisplay.textContent = `db: ${JSON.stringify(db)}`;
+  };
+
+  const getUser = async () => {
+    db = "Loading...";
+    updateDbDisplay();
+
+    const response = await fetch(`[YOUR_CANISTER_ORIGIN]/users`);
+    const responseJson = await response.json();
+
+    db = responseJson;
+    updateDbDisplay();
+  };
+
+  const addUser = async () => {
+    if (db.includes(username)) {
+      return;
+    }
+
+    db = "Loading...";
+    updateDbDisplay();
+
+    const response = await fetch(`[YOUR_CANISTER_ORIGIN]/users/add`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+    });
+    const responseJson = await response.json();
+    console.log(responseJson);
+
+    db = responseJson;
+    username = ""; // Clear the username after adding
+    usernameInput.value = ""; // Also clear the input field
+    updateDbDisplay();
+  };
+
+  const handleInput = (event) => {
+    username = event.target.value;
+  };
+
+  getUserBtn.addEventListener("click", getUser);
+  addUserBtn.addEventListener("click", addUser);
+  usernameInput.addEventListener("input", handleInput);
+
+  getUser(); // Initial call to populate the db display
 });
-
-document.querySelector("form").addEventListener("submit", async (e) => {
-  // override the default form submission behavior
-  e.preventDefault();
-  console.log("Submitted");
-
-  const button = e.target.querySelector("#submit-btn");
-
-  const inputAmount = parseFloat(document.getElementById("input-amount").value);
-
-  button.setAttribute("disabled", true);
-
-  if (document.getElementById("input-amount").value.length != 0) {
-    await rbank_backend.top_up(inputAmount);
-  }
-
-  const outputAmount = parseFloat(
-    document.getElementById("withdrawal-amount").value,
-  );
-
-  if (document.getElementById("withdrawal-amount").value.length != 0) {
-    await rbank_backend.withdraw(outputAmount);
-  }
-
-  await update();
-
-  document.getElementById("input-amount").value = "";
-  document.getElementById("withdrawal-amount").value = "";
-  button.removeAttribute("disabled");
-
-  // const result = await rbank.deposit(amount);
-  // console.log("deposit result", result);
-  // window.location.reload();
-});
-
-async function update() {
-  const currentAmount = await rbank_backend.check_balance();
-  document.getElementById("value").innerText =
-    Math.round(currentAmount * 100) / 100; // round to 2 decimal places
-}
