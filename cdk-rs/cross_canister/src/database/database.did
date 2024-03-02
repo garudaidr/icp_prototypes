@@ -5,7 +5,6 @@ type Error = variant {
 type QueryParams = record { offset : nat64; limit : nat64 };
 type Result = variant { Ok : text; Err : Error };
 service : {
-  create : () -> (Result);
   insert : (text) -> (Result);
   "query" : (QueryParams) -> (Result) query;
 }

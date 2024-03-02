@@ -10,46 +10,50 @@ thread_local! {
 
 #[derive(CandidType, Deserialize, Default)]
 struct RuntimeState {
-    data: Data,
-}
-
-#[derive(CandidType, Deserialize, Default)]
-struct Data {
-    account: AccountItem,
-}
-
-#[derive(CandidType, Deserialize, Clone, Default)]
-struct AccountItem {
-    account_id: String,
-    balance: f64,
+    is_table_created: bool, // State to track if the table is created
 }
 
 #[pre_upgrade]
 fn pre_upgrade() {
-    RUNTIME_STATE.with(|state| ic_cdk::storage::stable_save((&state.borrow().data,)).unwrap());
-    // passing tuple ( (x,) )
+    RUNTIME_STATE
+        .with(|state| ic_cdk::storage::stable_save((state.borrow().is_table_created,)).unwrap());
 }
 
 #[post_upgrade]
 fn post_upgrade() {
-    let (data,): (Data,) = ic_cdk::storage::stable_restore().unwrap();
-    let runtime_state = RuntimeState { data };
+    let (is_table_created,): (bool,) = ic_cdk::storage::stable_restore().unwrap();
+    let runtime_state = RuntimeState { is_table_created };
 
     RUNTIME_STATE.with(|state| *state.borrow_mut() = runtime_state)
 }
 
-#[update]
 fn create() -> Result {
+    // First, check if the table has already been created.
+    let mut table_already_created = false;
+    RUNTIME_STATE.with(|state| {
+        table_already_created = state.borrow().is_table_created;
+    });
+
+    if table_already_created {
+        // If the table is already created, return a message indicating so.
+        return Ok("Table has already been created.".to_string());
+    }
+
     let conn = ic_sqlite::CONN.lock().unwrap();
     return match conn.execute(
-        "CREATE TABLE users
+        "CREATE TABLE IF NOT EXISTS users
             (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL UNIQUE
             );",
         [],
     ) {
-        Ok(e) => Ok(format!("{:?}", e)),
+        Ok(_) => {
+            RUNTIME_STATE.with(|state| {
+                state.borrow_mut().is_table_created = true; // Update the state here
+            });
+            Ok("Table created successfully".to_string())
+        }
         Err(err) => Err(Error::CanisterError {
             message: format!("{:?}", err),
         }),
@@ -58,6 +62,11 @@ fn create() -> Result {
 
 #[query]
 fn query(params: QueryParams) -> Result {
+    // Attempt to create the table first and early return on error
+    if let Err(err) = create() {
+        return Err(err);
+    }
+
     let conn = ic_sqlite::CONN.lock().unwrap();
     let mut stmt = match conn.prepare("SELECT username FROM users;") {
         Ok(e) => e,
@@ -67,8 +76,8 @@ fn query(params: QueryParams) -> Result {
             })
         }
     };
-    let person_iter = match stmt.query_map((params.limit, params.offset), |row| {
-        Ok(PersonQuery {
+    let user_iter = match stmt.query_map((params.limit, params.offset), |row| {
+        Ok(UserQuery {
             id: row.get(0).unwrap(),
             username: row.get(1).unwrap(),
         })
@@ -80,16 +89,21 @@ fn query(params: QueryParams) -> Result {
             })
         }
     };
-    let mut persons = Vec::new();
-    for person in person_iter {
-        persons.push(person.unwrap());
+    let mut users = Vec::new();
+    for user in user_iter {
+        users.push(user.unwrap());
     }
-    let res = serde_json::to_string(&persons).unwrap();
+    let res = serde_json::to_string(&users).unwrap();
     Ok(res)
 }
 
 #[update]
 fn insert(username: String) -> Result {
+    // Attempt to create the table first and early return on error
+    if let Err(err) = create() {
+        return Err(err);
+    }
+
     let conn = ic_sqlite::CONN.lock().unwrap();
     return match conn.execute("INSERT INTO users (username) VALUES (?1);", (username,)) {
         Ok(e) => Ok(format!("{:?}", e)),
@@ -106,7 +120,7 @@ struct User {
 }
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Default)]
-struct PersonQuery {
+struct UserQuery {
     id: usize,
     username: String,
 }
