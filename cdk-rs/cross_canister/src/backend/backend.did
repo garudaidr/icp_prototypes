@@ -1,11 +1,20 @@
-type AccountItem =
-    record {
-        id: text;
-        balance: float64;
-    };
-
-service: {
-    top_up: (float64) -> ();
-    withdraw: (float64) -> ();
-    check_balance: () -> (float64);
+type Error = variant {
+  CanisterError : record { message : text };
+  InvalidCanister;
+};
+type FilterParams = record { name : text };
+type Person = record { age : nat64; name : text };
+type QueryParams = record { offset : nat64; limit : nat64 };
+type Result = variant { Ok : text; Err : Error };
+type UpdateParams = record { id : nat64; name : text };
+service : {
+  check_balance : () -> (float64) query;
+  create : () -> (Result);
+  delete : (nat64) -> (Result);
+  insert : (Person) -> (Result);
+  "query" : (QueryParams) -> (Result) query;
+  query_filter : (FilterParams) -> (Result) query;
+  top_up : (float64) -> ();
+  update : (UpdateParams) -> (Result);
+  withdraw : (float64) -> ();
 }

@@ -1,11 +1,11 @@
-type AccountItem =
-    record {
-        id: text;
-        balance: float64;
-    };
-
-service: {
-    top_up: (float64) -> ();
-    withdraw: (float64) -> ();
-    check_balance: () -> (float64);
+type Error = variant {
+  CanisterError : record { message : text };
+  InvalidCanister;
+};
+type QueryParams = record { offset : nat64; limit : nat64 };
+type Result = variant { Ok : text; Err : Error };
+service : {
+  create : () -> (Result);
+  insert : (text) -> (Result);
+  "query" : (QueryParams) -> (Result) query;
 }
