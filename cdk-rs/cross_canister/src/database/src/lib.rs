@@ -38,42 +38,15 @@ fn post_upgrade() {
     RUNTIME_STATE.with(|state| *state.borrow_mut() = runtime_state)
 }
 
-#[query]
-fn check_balance() -> f64 {
-    RUNTIME_STATE.with(|state| check_balance_impl(&state.borrow_mut()))
-}
-
-fn check_balance_impl(runtime_state: &RuntimeState) -> f64 {
-    runtime_state.data.account.balance.clone()
-}
-
-#[update]
-fn top_up(amount: f64) {
-    RUNTIME_STATE.with(|state| top_up_impl(&mut state.borrow_mut(), amount))
-}
-
-fn top_up_impl(runtime_state: &mut RuntimeState, amount: f64) {
-    runtime_state.data.account.balance += amount;
-}
-
-#[update]
-fn withdraw(amount: f64) {
-    RUNTIME_STATE.with(|state| withdraw_impl(&mut state.borrow_mut(), amount))
-}
-
-fn withdraw_impl(runtime_state: &mut RuntimeState, amount: f64) {
-    runtime_state.data.account.balance -= amount;
-}
-
 #[update]
 fn create() -> Result {
     let conn = ic_sqlite::CONN.lock().unwrap();
     return match conn.execute(
-        "create table person (
-            id   INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            age INTEGER
-        )",
+        "CREATE TABLE users
+            (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL UNIQUE
+            );",
         [],
     ) {
         Ok(e) => Ok(format!("{:?}", e)),
@@ -97,8 +70,7 @@ fn query(params: QueryParams) -> Result {
     let person_iter = match stmt.query_map((params.limit, params.offset), |row| {
         Ok(PersonQuery {
             id: row.get(0).unwrap(),
-            name: row.get(1).unwrap(),
-            age: row.get(2).unwrap(),
+            username: row.get(1).unwrap(),
         })
     }) {
         Ok(e) => e,
@@ -119,10 +91,7 @@ fn query(params: QueryParams) -> Result {
 #[update]
 fn insert(username: String) -> Result {
     let conn = ic_sqlite::CONN.lock().unwrap();
-    return match conn.execute(
-        "INSERT INTO users (username) VALUES (?1);",
-        (username),
-    ) {
+    return match conn.execute("INSERT INTO users (username) VALUES (?1);", (username,)) {
         Ok(e) => Ok(format!("{:?}", e)),
         Err(err) => Err(Error::CanisterError {
             message: format!("{:?}", err),
@@ -131,16 +100,15 @@ fn insert(username: String) -> Result {
 }
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Default)]
-struct Person {
-    name: String,
-    age: usize,
+struct User {
+    id: usize,
+    username: String,
 }
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Default)]
 struct PersonQuery {
     id: usize,
-    name: String,
-    age: usize,
+    username: String,
 }
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Default)]
@@ -176,3 +144,6 @@ impl From<(RejectionCode, String)> for Error {
         }
     }
 }
+
+// Enable Candid export
+ic_cdk::export_candid!();

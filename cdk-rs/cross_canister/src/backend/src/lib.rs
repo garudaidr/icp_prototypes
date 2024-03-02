@@ -234,3 +234,6 @@ impl From<(RejectionCode, String)> for Error {
         }
     }
 }
+
+// Enable Candid export
+ic_cdk::export_candid!();
