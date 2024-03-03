@@ -1,7 +1,8 @@
-import { backend } from '../../declarations/backend';
-import { Principal } from '@dfinity/principal';
+import { backend } from "../../declarations/backend";
 
 document.addEventListener("DOMContentLoaded", async () => {
+  const principalId = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
+
   const dbDisplay = document.getElementById("dbDisplay");
   const usernameInput = document.getElementById("usernameInput");
   const getUserBtn = document.getElementById("getUserBtn");
@@ -13,9 +14,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const getUsers = async () => {
     try {
-      const principal = Principal.fromText("your-principal-id");
-      const users = await backend.get_users(principal);
-      updateDbDisplay(users);
+      const users = await backend.get_users();
+      updateDbDisplay(users.Ok);
     } catch (error) {
       console.error("Failed to get users: ", error);
       dbDisplay.textContent = "Failed to load users.";
@@ -30,9 +30,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-      const principal = Principal.fromText("your-principal-id");
-      const users = await backend.add_user(principal, username);
-      updateDbDisplay(users);
+      const users = await backend.add_user(username);
+      updateDbDisplay(users.Ok);
     } catch (error) {
       console.error("Failed to add user: ", error);
     }

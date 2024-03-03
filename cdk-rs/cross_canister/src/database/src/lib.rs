@@ -62,9 +62,14 @@ fn create() -> Result {
 
 #[query]
 fn query(params: QueryParams) -> Result {
-    // Attempt to create the table first and early return on error
-    if let Err(err) = create() {
-        return Err(err);
+    // First, check if the table has already been created.
+    let mut table_already_created = false;
+    RUNTIME_STATE.with(|state| {
+        table_already_created = state.borrow().is_table_created;
+    });
+
+    if !table_already_created {
+        return Ok(serde_json::to_string(&Vec::<String>::new()).unwrap());
     }
 
     let conn = ic_sqlite::CONN.lock().unwrap();

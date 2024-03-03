@@ -14,7 +14,7 @@
     "start": "webpack serve --mode development --env development",
     "deploy:local": "dfx deploy --network=local",
     "deploy:ic": "dfx deploy --network=ic",
-    "generate": "dfx generate backend && dfx generate database",
+    "generate": "npm run generate:did && dfx generate backend && dfx generate database",
     "generate:did": "npm run generate:did:database && npm run generate:did:backend",
     "generate:did:backend": "cargo build --release --target wasm32-unknown-unknown --package backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > src/backend/backend.did",
     "generate:did:database": "cargo build --release --target wasm32-unknown-unknown --package database && candid-extractor target/wasm32-unknown-unknown/release/database.wasm > src/database/database.did",
