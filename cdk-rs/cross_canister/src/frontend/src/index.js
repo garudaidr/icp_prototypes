@@ -1,56 +1,47 @@
-document.addEventListener("DOMContentLoaded", () => {
-  let db = {};
-  let username = "";
+import { backend } from '../../declarations/backend';
+import { Principal } from '@dfinity/principal';
 
+document.addEventListener("DOMContentLoaded", async () => {
   const dbDisplay = document.getElementById("dbDisplay");
   const usernameInput = document.getElementById("usernameInput");
   const getUserBtn = document.getElementById("getUserBtn");
   const addUserBtn = document.getElementById("addUserBtn");
 
-  const updateDbDisplay = () => {
-    dbDisplay.textContent = `db: ${JSON.stringify(db)}`;
+  const updateDbDisplay = (users) => {
+    dbDisplay.textContent = `Users: ${JSON.stringify(users)}`;
   };
 
-  const getUser = async () => {
-    db = "Loading...";
-    updateDbDisplay();
-
-    const response = await fetch(`[YOUR_CANISTER_ORIGIN]/users`);
-    const responseJson = await response.json();
-
-    db = responseJson;
-    updateDbDisplay();
+  const getUsers = async () => {
+    try {
+      const principal = Principal.fromText("your-principal-id");
+      const users = await backend.get_users(principal);
+      updateDbDisplay(users);
+    } catch (error) {
+      console.error("Failed to get users: ", error);
+      dbDisplay.textContent = "Failed to load users.";
+    }
   };
 
   const addUser = async () => {
-    if (db.includes(username)) {
-      return;
+    const username = usernameInput.value.trim();
+    if (username === "") {
+      console.log("Username is required.");
+      return; // Ignore empty username
     }
 
-    db = "Loading...";
-    updateDbDisplay();
+    try {
+      const principal = Principal.fromText("your-principal-id");
+      const users = await backend.add_user(principal, username);
+      updateDbDisplay(users);
+    } catch (error) {
+      console.error("Failed to add user: ", error);
+    }
 
-    const response = await fetch(`[YOUR_CANISTER_ORIGIN]/users/add`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username }),
-    });
-    const responseJson = await response.json();
-    console.log(responseJson);
-
-    db = responseJson;
-    username = ""; // Clear the username after adding
-    usernameInput.value = ""; // Also clear the input field
-    updateDbDisplay();
+    usernameInput.value = ""; // Clear the input field after adding
   };
 
-  const handleInput = (event) => {
-    username = event.target.value;
-  };
-
-  getUserBtn.addEventListener("click", getUser);
+  getUserBtn.addEventListener("click", getUsers);
   addUserBtn.addEventListener("click", addUser);
-  usernameInput.addEventListener("input", handleInput);
 
-  getUser(); // Initial call to populate the db display
+  getUsers(); // Initial call to populate the users display
 });
