@@ -1,0 +1,6 @@
+type Result = variant { Ok : text; Err : text };
+service : {
+  add_user : (text) -> (Result);
+  get_users : () -> (Result) query;
+  search_users : (text) -> (Result) query;
+}
