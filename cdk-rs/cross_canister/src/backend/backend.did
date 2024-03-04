@@ -1,2 +1,2 @@
-type Result = variant { Ok : vec text; Err : text };
+type Result = variant { Ok : text; Err : text };
 service : { add_user : (text) -> (Result); get_users : () -> (Result) query }

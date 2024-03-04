@@ -27,52 +27,26 @@ fn post_upgrade() {
     RUNTIME_STATE.with(|state| *state.borrow_mut() = runtime_state)
 }
 
-fn create() -> Result {
-    // First, check if the table has already been created.
-    let mut table_already_created = false;
-    RUNTIME_STATE.with(|state| {
-        table_already_created = state.borrow().is_table_created;
-    });
-
-    if table_already_created {
-        // If the table is already created, return a message indicating so.
-        return Ok("Table has already been created.".to_string());
-    }
-
+#[update]
+fn insert(username: String) -> Result {
     let conn = ic_sqlite::CONN.lock().unwrap();
-    return match conn.execute(
-        "CREATE TABLE IF NOT EXISTS users
-            (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL UNIQUE
-            );",
-        [],
-    ) {
-        Ok(_) => {
-            RUNTIME_STATE.with(|state| {
-                state.borrow_mut().is_table_created = true; // Update the state here
-            });
-            Ok("Table created successfully".to_string())
-        }
-        Err(err) => Err(Error::CanisterError {
-            message: format!("{:?}", err),
-        }),
-    };
-}
 
-#[query]
-fn query(params: QueryParams) -> Result {
-    // First, check if the table has already been created.
-    let mut table_already_created = false;
-    RUNTIME_STATE.with(|state| {
-        table_already_created = state.borrow().is_table_created;
-    });
-
+    // Check if the table needs to be created and create it if necessary
+    let table_already_created = RUNTIME_STATE.with(|state| state.borrow().is_table_created);
     if !table_already_created {
-        return Ok(serde_json::to_string(&Vec::<String>::new()).unwrap());
+        match conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE);", []) {
+            Ok(_) => RUNTIME_STATE.with(|state| state.borrow_mut().is_table_created = true),
+            Err(err) => return Err(Error::CanisterError { message: format!("{:?}", err) }),
+        };
     }
 
-    let conn = ic_sqlite::CONN.lock().unwrap();
+    // Proceed with inserting the new user
+    if let Err(err) = conn.execute("INSERT INTO users (username) VALUES (?1);", &[&username]) {
+        return Err(Error::CanisterError {
+            message: format!("{:?}", err),
+        });
+    }
+
     let mut stmt = match conn.prepare("SELECT username FROM users;") {
         Ok(e) => e,
         Err(err) => {
@@ -81,10 +55,9 @@ fn query(params: QueryParams) -> Result {
             })
         }
     };
-    let user_iter = match stmt.query_map((params.limit, params.offset), |row| {
+    let user_iter = match stmt.query_map((), |row| {
         Ok(UserQuery {
-            id: row.get(0).unwrap(),
-            username: row.get(1).unwrap(),
+            username: row.get(0).unwrap(),
         })
     }) {
         Ok(e) => e,
@@ -96,26 +69,10 @@ fn query(params: QueryParams) -> Result {
     };
     let mut users = Vec::new();
     for user in user_iter {
-        users.push(user.unwrap());
+        users.push(user.unwrap().username);
     }
     let res = serde_json::to_string(&users).unwrap();
     Ok(res)
-}
-
-#[update]
-fn insert(username: String) -> Result {
-    // Attempt to create the table first and early return on error
-    if let Err(err) = create() {
-        return Err(err);
-    }
-
-    let conn = ic_sqlite::CONN.lock().unwrap();
-    return match conn.execute("INSERT INTO users (username) VALUES (?1);", (username,)) {
-        Ok(e) => Ok(format!("{:?}", e)),
-        Err(err) => Err(Error::CanisterError {
-            message: format!("{:?}", err),
-        }),
-    };
 }
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Default)]
@@ -126,25 +83,7 @@ struct User {
 
 #[derive(CandidType, Debug, Serialize, Deserialize, Default)]
 struct UserQuery {
-    id: usize,
     username: String,
-}
-
-#[derive(CandidType, Debug, Serialize, Deserialize, Default)]
-struct QueryParams {
-    limit: usize,
-    offset: usize,
-}
-
-#[derive(CandidType, Debug, Serialize, Deserialize, Default)]
-struct FilterParams {
-    name: String,
-}
-
-#[derive(CandidType, Debug, Serialize, Deserialize, Default)]
-struct UpdateParams {
-    id: usize,
-    name: String,
 }
 
 #[derive(CandidType, Deserialize)]
