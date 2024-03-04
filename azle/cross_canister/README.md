@@ -2,115 +2,82 @@
 
 This project demonstrates how to perform cross-canister calls using Azle, focusing on the interaction between a backend service and a database canister. Here, the database canister manages user data with SQLite, showcasing a novel approach to decentralized database management on the Internet Computer Protocol (ICP).
 
-- [Installation](#installation)
-- [Deployment](#deployment)
-- [Understanding the Code](#understanding-the-code)
-- [Examples](#examples)
-
 Azle helps you build secure, decentralized servers in TypeScript or JavaScript on ICP. For more documentation, see [The Azle Book](https://demergent-labs.github.io/azle/).
+
+## Features
+
+- **Database Canister (`database.ts`)**: Manages a SQLite database for storing user information. Provides functions to add new users and query existing users.
+- **Backend (`backend.ts`)**: Serves as the middleware between the frontend and the database canister. Handles HTTP requests for adding and retrieving users, and serves static files.
+- **Frontend (`index.html` and `index.ts`)**: Utilizes LitElement to create a web component for user interaction. Allows users to add new usernames to the database and displays the list of added usernames.
+
+## Prerequisites
+
+- Node.js (Recommended: use nvm to install Node.js 20)
+- dfx command line tools for managing ICP applications
+- Podman (Linux/WSL) or Docker (Mac)
 
 ## Installation
 
-> Windows is only supported through a Linux virtual environment, such as [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)
-
-**On Ubuntu/WSL:**
+Clone the repository and install dependencies:
 
 ```bash
-sudo apt-get install podman
-```
-
-**On Mac:**
-
-```bash
-brew install podman
-```
-
-**Node.js Setup:**
-
-It's recommended to use nvm and Node.js 20:
-
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-nvm install 20
-node --version
-```
-
-**ICP Tools:**
-
-Install the `dfx` command line tools for managing ICP applications:
-
-```bash
-DFX_VERSION=0.16.1 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
-dfx --version
-```
-
-If you encounter a `command not found` error for `dfx`, add `$HOME/bin` to your path:
-
-```bash
-echo 'export PATH="$PATH:$HOME/bin"' >> "$HOME/.bashrc"
+git clone <repository-url>
+cd <project-directory>
+npm install
 ```
 
 ## Deployment
 
+Start your local ICP replica:
+
 ```bash
-npx azle new cross_canister
-cd cross_canister
-
-npm install
-
 dfx start --clean --host 127.0.0.1:8000
 ```
 
-**Deploy Your Canisters:**
-
-In a new terminal within the `cross_canister` directory:
+Deploy your canisters:
 
 ```bash
 dfx deploy
 ```
 
-Enable auto-reload for HTTP-based canisters during development (not for production):
+For auto-reload during development:
 
 ```bash
 AZLE_AUTORELOAD=true dfx deploy
-```
-
-**Viewing the Frontend:**
-
-Access your frontend via `http://[canisterId].localhost:8000`.
-
-To find your `[canisterId]`:
-
-```bash
-dfx canister id backend
-```
-
-Use `curl` or any HTTP client to interact with your canister:
-
-```bash
-curl http://[canisterId].localhost:8000/users
-curl -X POST -H "Content-Type: application/json" -d "{\"username\": \"newuser\"}" http://[canisterId].localhost:8000/users/add
 ```
 
 ## Understanding the Code
 
 The project consists of two main components:
 
-1. **Database Canister:** Manages a SQLite database to store user data. It exposes functions to add users and retrieve user lists.
+1. **Database Canister**: Manages SQLite database for user data storage.
+2. **Backend Canister**: Interfaces for external HTTP requests.
 
-2. **Backend Canister:** Serves as the interface for external HTTP requests, forwarding them to the database canister and returning the responses.
+This setup demonstrates structuring and deploying projects with cross-canister calls for a clear separation of concerns between data management and request handling.
 
-This setup demonstrates how to structure and deploy a project with cross-canister calls, enabling a separation of concerns between data management and request handling.
+## Scripts
+
+- `build`: Builds the frontend assets.
+- `pretest`, `test`: Scripts for running tests.
+- `format`: Formats the codebase using Prettier.
 
 ## Examples
 
-Explore more Azle examples in the [examples directory](https://github.com/demergent-labs/azle/tree/main/examples), including:
+Explore Azle examples, including:
 
 - [apollo_server](https://github.com/demergent-labs/azle/tree/main/examples/apollo_server)
 - [ethers](https://github.com/demergent-labs/azle/tree/main/examples/ethers)
 - [express](https://github.com/demergent-labs/azle/tree/main/examples/express)
-- [fs](https://github.com/demergent-labs/azle/tree/main/examples/fs)
-- [cross_canister_calls](https://github.com/demergent-labs/azle/tree/main/examples/cross_canister_calls)
-- [ic_evm_rpc](https://github.com/demergent-labs/azle/tree/main/examples/ic_evm_rpc)
-- [sqlite](https://github.com/demergent-labs/azle/tree/main/examples/sqlite)
-- [web_assembly](https://github.com/demergent-labs/azle/tree/main/examples/web_assembly)
+- And many more in the [examples directory](https://github.com/demergent-labs/azle/tree/main/examples).
+
+## Contributing
+
+We welcome contributions! Please feel free to submit pull requests or open issues to suggest improvements or add new features.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
+```
+
+```

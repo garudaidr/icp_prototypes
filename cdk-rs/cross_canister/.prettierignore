@@ -1,6 +1,7 @@
 .azle
 .dfx
 node_modules
-rbank_backend
+backend
+database
 *.toml
 *.lock
