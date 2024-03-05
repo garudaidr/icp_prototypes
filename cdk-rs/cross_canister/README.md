@@ -1,4 +1,4 @@
-# User Management System
+# Cross Canister User Management System
 
 This repository contains the code for a basic User Management System designed for the Internet Computer platform. It showcases the use of canisters to manage users in a decentralized database, with a simple web interface for interaction.
 
