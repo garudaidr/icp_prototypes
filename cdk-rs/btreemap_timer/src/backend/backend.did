@@ -1,0 +1,8 @@
+type Error = record { message : text };
+type Result = variant { Ok : text; Err : Error };
+type Result_1 = variant { Ok : text; Err : text };
+service : () -> {
+  add_user : (text) -> (Result);
+  get_users : () -> (Result_1) query;
+  search_users : (text) -> (Result_1) query;
+}
