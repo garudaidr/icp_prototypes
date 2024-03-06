@@ -1,9 +1,13 @@
 import { backend } from "../../declarations/backend";
 
 const dbDisplay = document.getElementById("dbDisplay");
+const intervalDisplay = document.getElementById("intervalDisplay");
 const usernameInput = document.getElementById("usernameInput");
 const getUserBtn = document.getElementById("getUserBtn");
 const addUserBtn = document.getElementById("addUserBtn");
+const setIntervalInput = document.getElementById("setIntervalInput");
+const getIntervalBtn = document.getElementById("getIntervalBtn");
+const setIntervalBtn = document.getElementById("setIntervalBtn");
 
 const updateDbDisplay = (users) => {
   dbDisplay.textContent = `Users: ${JSON.stringify(users)}`;
@@ -73,4 +77,46 @@ const searchUsers = async () => {
 // Bind the searchUsers function to the search button
 searchUserBtn.addEventListener("click", searchUsers);
 
-getUsers(); // Initial call to populate the users display
+const updateIntervalDisplay = (interval) => {
+  intervalDisplay.textContent = `Interval: ${interval}s`;
+};
+
+const getInterval = async () => {
+  try {
+    const interval = await backend.get_interval();
+    if (interval.Ok) {
+      updateIntervalDisplay(interval.Ok);
+    } else if (interval.Err) {
+      console.log("There was some error: ", interval.Err);
+    }
+  } catch (error) {
+    console.error("Failed to get interval: ", error);
+  }
+};
+
+const _setInterval = async () => {
+  const interval = parseInt(setIntervalInput.value.trim());
+  if (isNaN(interval) || interval <= 0) {
+    console.log("Valid interval is required.");
+    return;
+  }
+
+  try {
+    const result = await backend.set_interval(interval);
+    if (result.Ok) {
+      updateIntervalDisplay(result.Ok);
+    } else if (result.Err) {
+      console.log("There was some error: ", result.Err);
+    }
+  } catch (error) {
+    console.error("Failed to set interval: ", error);
+  }
+
+  setIntervalInput.value = ""; // Clear the input field after setting
+};
+
+getIntervalBtn.addEventListener("click", getInterval);
+setIntervalBtn.addEventListener("click", _setInterval);
+
+getInterval(); // Initial call to display the current interval
+setInterval(getUsers, 1000); // Call getUsers every second

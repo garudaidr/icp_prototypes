@@ -7,6 +7,8 @@
     <h1>User Cash Management</h1>
 
     <div id="dbDisplay">Users: []</div>
+    <div id="intervalDisplay">Interval: 1s</div>
+    <!-- Display for the timer interval -->
 
     <br />
 
@@ -16,7 +18,7 @@
 
     <br />
 
-    <div>
+    <div style="display: none">
       <input type="text" id="searchInput" placeholder="Search username" />
       <button id="searchUserBtn">Search User</button>
     </div>
@@ -26,6 +28,18 @@
     <div>
       <input type="text" id="usernameInput" placeholder="Enter username" />
       <button id="addUserBtn">Add User</button>
+    </div>
+
+    <br />
+
+    <div>
+      <button id="getIntervalBtn">Get Interval</button>
+      <input
+        type="number"
+        id="setIntervalInput"
+        placeholder="Set Interval (s)"
+      />
+      <button id="setIntervalBtn">Set Interval</button>
     </div>
   </body>
 </html>

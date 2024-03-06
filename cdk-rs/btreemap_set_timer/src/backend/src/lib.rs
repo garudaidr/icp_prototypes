@@ -9,6 +9,7 @@ type UserStore = BTreeMap<usize, User>;
 thread_local! {
     static USERS: RefCell<UserStore> = RefCell::default();
     static INTERVAL_IN_SECONDS: RefCell<u64> = RefCell::default();
+    static TIMERS: RefCell<ic_cdk_timers::TimerId> = RefCell::default();
 }
 
 #[derive(CandidType, Deserialize, Serialize, Clone)]
@@ -24,19 +25,23 @@ struct Error {
 
 #[ic_cdk::init]
 fn init() {
+    let seconds = 3;
     INTERVAL_IN_SECONDS.with(|interval_ref| {
-        interval_ref.replace(1);
+        interval_ref.replace(seconds);
     });
 
-    let interval = std::time::Duration::from_secs(1);
+    let interval = std::time::Duration::from_secs(seconds);
     ic_cdk::println!("Starting a periodic task with interval {:?}", interval);
-    ic_cdk_timers::set_timer_interval(interval, || {
+    let timer_id = ic_cdk_timers::set_timer_interval(interval, || {
         USERS.with(|users| {
             let mut users = users.borrow_mut();
             for user in users.values_mut() {
                 user.cash += 1; // Increment cash for each user
             }
         });
+    });
+    TIMERS.with(|timers_ref| {
+        timers_ref.replace(timer_id);
     });
 }
 
@@ -47,15 +52,23 @@ fn get_interval() -> Result<u64, Error> {
 
 #[update]
 fn set_interval(seconds: u64) -> Result<u64, Error> {
+    TIMERS.with(|timers_ref| {
+        let timer_id = timers_ref.borrow().clone();
+        ic_cdk_timers::clear_timer(timer_id);
+    });
+
     let interval = std::time::Duration::from_secs(seconds);
     ic_cdk::println!("Starting a periodic task with interval {:?}", interval);
-    ic_cdk_timers::set_timer_interval(interval, || {
+    let new_timer_id = ic_cdk_timers::set_timer_interval(interval, || {
         USERS.with(|users| {
             let mut users = users.borrow_mut();
             for user in users.values_mut() {
                 user.cash += 1; // Increment cash for each user
             }
         });
+    });
+    TIMERS.with(|timers_ref| {
+        timers_ref.replace(new_timer_id);
     });
 
     INTERVAL_IN_SECONDS.with(|seconds_ref| {
