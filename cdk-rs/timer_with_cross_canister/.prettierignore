@@ -1,0 +1,7 @@
+.azle
+.dfx
+node_modules
+backend
+database
+*.toml
+*.lock

@@ -79,7 +79,35 @@ export DEFAULT_ACCOUNT_ID=$(dfx ledger account-id)
 ### Step 8: Deploy the Ledger Canister with Archiving Options
 Use `dfx deploy` with the specified arguments to deploy the ledger canister, setting up initial values, the minting account, and other options.
 
+```bash
+dfx deploy --specified-id ryjl3-tyaaa-aaaaa-aaaba-cai icp_ledger_canister --argument "
+  (variant {
+    Init = record {
+      minting_account = \"$MINTER_ACCOUNT_ID\";
+      initial_values = vec {
+        record {
+          \"$DEFAULT_ACCOUNT_ID\";
+          record {
+            e8s = 10_000_000_000 : nat64;
+          };
+        };
+      };
+      send_whitelist = vec {};
+      transfer_fee = opt record {
+        e8s = 10_000 : nat64;
+      };
+      token_symbol = opt \"LICP\";
+      token_name = opt \"Local ICP\";
+    }
+  })
+"
+```
+
 ### Step 9: Interact with the Canister
 Interact with the canister using CLI commands or the Candid UI, as demonstrated, to work with your local ICP ledger canister.
+
+```
+http://127.0.0.1:4943/?canisterId=bnz7o-iuaaa-aaaaa-qaaaa-cai&id=ryjl3-tyaaa-aaaaa-aaaba-cai
+```
 
 Your local ICP ledger canister is now up and running, ready for other canisters to communicate with it.
