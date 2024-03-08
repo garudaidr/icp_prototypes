@@ -1,88 +1,88 @@
 # User Cash Management System on ICP
 
-This documentation combines a detailed code explanation and setup guide for a User Management System designed for the Internet Computer (ICP) platform. The system utilizes Rust for the backend canister and HTML/JavaScript for the frontend, showcasing the management of users in a decentralized database.
+This documentation outlines a comprehensive guide and detailed code explanation for a User Cash Management System created for the Internet Computer (ICP) platform. Utilizing Rust for the backend canister functionality and HTML/JavaScript for the frontend, this system demonstrates the management of user balances in a decentralized environment.
 
 ## Overview
 
-The User Management System is designed to demonstrate the capabilities of the Internet Computer in handling user data through canisters. It is divided into two main components:
+The User Cash Management System showcases the capabilities of the Internet Computer in managing user balances through canisters. It comprises two principal components:
 
-- **Backend Canister**: Implements logic for user operations such as adding, retrieving, and searching users within a decentralized database, written in Rust.
-- **Frontend Canister**: Provides a simple web interface for user interaction, allowing for operations like user addition, viewing, and searching, developed with HTML and JavaScript.
+- **Backend Canister**: Implements logic for operations such as adding users, updating their balances, and searching within a decentralized database, all coded in Rust.
+- **Frontend Canister**: Offers a web interface for user interactions, enabling functionalities like user balance addition, viewing, and searching, designed with HTML and JavaScript.
 
 ## Prerequisites
 
-To work with this system, the following installations are necessary:
+Required installations include:
 
-- Node.js (check `package.json` for version compatibility)
-- DFINITY Foundation's SDK, `dfx`, for building and deploying on the Internet Computer
-- Rust and Cargo for compiling Rust code
+- Node.js (refer to `package.json` for version compatibility)
+- DFINITY Foundation's SDK, `dfx`, for deployment on the Internet Computer
+- Rust and Cargo to compile Rust code
 
 ## Setup
 
-Follow these steps to get the system up and running:
+To initialize the system, follow these instructions:
 
-1. **Clone the Repository**: Start by cloning this repository to your local environment.
-2. **Install Dependencies**: Navigate to the project directory and execute `npm install` to install necessary dependencies.
-3. **Start the Local Replica**: Utilize `dfx start --clean --host 127.0.0.1:8000` to initiate a local development environment.
-4. **Deploy Canisters**: Use `npm run deploy:local` to deploy the canisters onto your local replica.
+1. **Clone the Repository**: Begin by cloning the repository to your local machine.
+2. **Install Dependencies**: In the project directory, run `npm install` to install the necessary dependencies.
+3. **Start the Local Replica**: Execute `dfx start --clean --host 127.0.0.1:8000` to start a local development environment.
+4. **Deploy Canisters**: Deploy the canisters to your local replica using `npm run deploy:local`.
 
 ## Features
 
-- **Add Users**: Facilitates adding users through the web interface, with an auto-incremented cash value for each user.
-- **Get Users**: Allows viewing a list of users added to the system.
-- **Search Users**: Enables searching for users by username, showcasing dynamic user query functionality.
+- **Add Users**: Supports adding users via the web interface, with an initial balance that can be incremented.
+- **Get Users**: Enables viewing a list of users and their current balances.
+- **Search Users**: Allows for searching users by username, highlighting dynamic query functionality.
 
 ## Development Commands
 
 - `npm run build`: Compiles the frontend resources.
 - `npm run deploy:local`: Deploys canisters to the local development network.
-- `npm run deploy:ic`: Deploys canisters to the Internet Computer mainnet, making the application live.
-- `npm run generate`: Generates `.did` interface files necessary for interacting with canisters, facilitating frontend-backend communication.
+- `npm run deploy:ic`: Deploys canisters to the Internet Computer mainnet, activating the application.
+- `npm run generate`: Generates `.did` interface files for canister interaction, aiding frontend-backend communication.
 
 ## Backend Canister
 
-The backend canister, written in Rust, employs the Candid interface definition language, the IC CDK (Canister Development Kit) macros, and Serde for serialization. It features a user store implemented as a binary tree map (`BTreeMap`) for efficient user management.
+The backend canister, crafted in Rust, employs the Candid interface definition language, the IC CDK (Canister Development Kit) macros, and Serde for serialization. It introduces a user store implemented as a binary tree map (`BTreeMap`) for effective user balance management.
 
 ### Key Components
 
-- **User Store**: A `BTreeMap<usize, User>` mapping user IDs to user records.
-- **User Structure**: Represents user data, including `username` and `cash`.
-- **Error Handling**: A simple structure to encapsulate error messages.
-- **Periodic Task**: Upon initialization, a periodic task is set to increment each user's cash by 1 unit every second.
+- **User Store**: A `BTreeMap<usize, User>` mapping user IDs to user records, facilitating efficient balance management.
+- **User Structure**: Defines user data with fields for `principal` and `balance`.
+- **Error Handling**: Implements a structure for encapsulating error messages.
+- **Periodic Task**: A periodic task increments user balances at specified intervals, demonstrating asynchronous operations and interaction with external canisters.
 
 ### Functions
 
-- **init**: Initializes the canister and starts a periodic task.
-- **add_user**: Adds a new user with a specified username. Usernames are stored along with an initial cash value of 0.
-- **get_users**: Retrieves a list of all users.
-- **search_users**: Filters users based on a search query matching part of their username.
+- **init**: Initializes the canister, setting up a periodic task to update user balances.
+- **add_user**: Adds a user with a given principal. Principals are associated with an initial balance.
+- **get_users**: Retrieves a list of all users along with their balances.
+- **search_users**: Filters users by matching part of their principal against a search query.
 
 ## Frontend Canister
 
-The frontend is designed with basic HTML and JavaScript to interact with the backend canister. It provides a simple UI for adding, viewing, and searching for users.
+The frontend, built with simple HTML and JavaScript, facilitates interaction with the backend canister, providing an intuitive UI for adding, viewing, and searching for users based on balance and principal.
 
 ### HTML Structure
 
-- A display area to show user information.
-- Buttons for retrieving all users and adding new users.
-- An input field for adding a new user's username.
-- An input field and a button for searching users by username.
+- A display area for showing user information.
+- Buttons for retrieving all users and adding new ones.
+- An input field for entering a new user's principal.
+- A search interface for users by principal.
 
 ### JavaScript Logic
 
-- **getUserBtn**: Fetches and displays all users.
-- **addUserBtn**: Adds a new user with the specified username.
-- **searchUserBtn**: Searches for users with usernames that include the search query.
-- **updateDbDisplay**: Updates the UI with the latest users' information.
+- **getUserBtn**: Fetches and displays all users with their balances.
+- **addUserBtn**: Adds a new user with the specified principal.
+- **searchUserBtn**: Searches for users by principals matching the search query.
+- **updateDbDisplay**: Refreshes the UI with the latest information on users and their balances.
 
 ### Interaction Flow
 
-The JavaScript script initializes by immediately fetching and displaying existing users. It listens for button clicks to add new users or search through existing ones, updating the UI in response to these actions.
+Upon initialization, the JavaScript script fetches and displays existing users and their balances. It responds to user actions like adding new users or searching through the existing ones, updating the UI accordingly.
 
 ## Contributing
 
-We welcome contributions! Feel free to open an issue or submit a pull request with any fixes or enhancements. Your input helps make this project better for everyone.
+Contributions are encouraged and appreciated! Feel free to report issues or submit pull requests for fixes or enhancements. Your involvement helps improve the project for everyone.
 
 ## License
 
-This project is open-sourced under the MIT License. See the LICENSE file in the repository for full license text.
+This project is shared under the MIT License. Refer to the LICENSE file in the repository for the full license text.
