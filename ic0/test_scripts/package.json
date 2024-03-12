@@ -1,0 +1,25 @@
+{
+  "name": "test_scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "format": "prettier --write '**/*.{ts,js}'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@dfinity/identity-secp256k1": "^0.20.2",
+    "bip39": "^3.0.4",
+    "dotenv": "^16.4.5",
+    "hdkey": "^2.0.1",
+    "ic0": "^0.2.8",
+    "secp256k1": "^4.0.2",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.26",
+    "prettier": "^3.2.5"
+  }
+}
