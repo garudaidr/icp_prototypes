@@ -4,7 +4,7 @@ import { transferIcrc1Tokens } from "./icp/update";
 import { Principal } from "@dfinity/principal";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { getIcrc1Balance } from "./icp/query/icrc1";
+import { getAccountIdentifier, getIcrc1Balance } from "./icp/query/icrc1";
 import { getAccountTransactions } from "./icp/query/indexer";
 import { local } from "ic0";
 
@@ -21,6 +21,9 @@ argv = yargs(hideBin(process.argv))
   .help()
   .alias("help", "h").argv;
 
+const fromHexString = (hexString) =>
+  Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+
 async function main() {
   const seedPhrase = argv.s;
 
@@ -30,6 +33,24 @@ async function main() {
   const agent = createHostAgentAndIdentityFromSeed(seedPhrase);
   const senderIdentity = getIdentityFromSeed(seedPhrase);
   console.log("Principal: ", senderIdentity.getPrincipal().toString());
+
+  try {
+    // dfx ledger account-id --of-principal rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae --subaccount 0000000000000000000000000000000000000000000000000000000000000001 (edited) 
+    // Call the account_identifier function
+    const response = await getAccountIdentifier(
+      agent,
+      ledgerCanisterId,
+      Principal.fromText(
+        "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
+      ),
+      fromHexString(
+        "0000000000000000000000000000000000000000000000000000000000000001",
+      ),
+    );
+    console.log("Response Subaccount Account Identifier:", response);
+  } catch (error) {
+    console.error("Error:", error);
+  }
 
   try {
     // Call the icrc1_balance_of function

@@ -34,3 +34,26 @@ export async function getIcrc1Balance(
     arg,
   });
 }
+
+// Function to query the account_identifier method of the ledger canister
+export async function getAccountIdentifier(
+  agent: HttpAgent,
+  canisterId: string,
+  owner: Principal,
+  subaccount?: Uint8Array,
+) {
+  const arg = IDL.encode(
+    [
+      IDL.Record({
+        owner: IDL.Principal,
+        subaccount: IDL.Opt(IDL.Vec(IDL.Nat8)),
+      }),
+    ],
+    [{ owner, subaccount: subaccount ? [Array.from(subaccount)] : [] }],
+  );
+
+  return await agent.query(canisterId, {
+    methodName: "account_identifier",
+    arg,
+  });
+}
