@@ -43,8 +43,8 @@ function _encodeApprovalRequest(request) {
  * @returns {Promise<any>} - The result of the canister call.
  */
 export async function callIcrc2Approval(
-  ledger_canister_id: string,
   agent: HttpAgent,
+  ledger_canister_id: string,
   {
     amount,
     spender,
@@ -129,8 +129,8 @@ function _encodeTransferFromRequest(request) {
  * @returns {Promise<any>} - The result of the canister call.
  */
 export async function callIcrc2TransferFrom(
-  ledger_canister_id: string,
   agent: HttpAgent,
+  ledger_canister_id: string,
   {
     from_principal,
     to_principal,

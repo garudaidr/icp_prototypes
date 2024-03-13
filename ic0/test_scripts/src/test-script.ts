@@ -1,9 +1,12 @@
 import { config } from "dotenv";
 import { createHostAgentAndIdentityFromSeed, getIdentityFromSeed } from "./icp";
-import { callIcrc2Approval, callIcrc2TransferFrom } from "./icp/update";
+import { transferIcrc1Tokens } from "./icp/update";
 import { Principal } from "@dfinity/principal";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { getIcrc1Balance } from "./icp/query/icrc1";
+import { getAccountTransactions } from "./icp/query/indexer";
+import { local } from "ic0";
 
 config(); // Initialize dotenv
 
@@ -29,34 +32,45 @@ async function main() {
   console.log("Principal: ", senderIdentity.getPrincipal().toString());
 
   try {
-    // Call the icrc2_approve function
-    const response = await callIcrc2Approval(ledgerCanisterId, agent, {
-      amount: 100_000,
-      spender: {
+    // Call the icrc1_balance_of function
+    const response = await getIcrc1Balance(agent, ledgerCanisterId, {
+      owner: Principal.fromText(
+        "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
+      ),
+    });
+    console.log("Response Balance Of:", response);
+  } catch (error) {
+    console.error("Error Balance Of:", error);
+  }
+
+  try {
+    // Call the icrc1_transfer function
+    const response = await transferIcrc1Tokens(agent, ledgerCanisterId, {
+      to: {
         owner: Principal.fromText(
           "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
         ),
       },
-    });
-    console.log("Response Approval:", response);
-  } catch (error) {
-    console.error("Error Approval:", error);
-  }
-
-  try {
-    // Call the icrc2_transfer_from function
-    const response = await callIcrc2TransferFrom(ledgerCanisterId, agent, {
-      from_principal: Principal.fromText(
-        "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
-      ),
-      to_principal: Principal.fromText(
-        "rg2ah-xl6x4-z6svw-bdxfv-klmal-cwfel-cfgzg-eoi6q-nszv5-7z5hg-sqe",
-      ),
       amount: 100_000,
     });
     console.log("Response Transfer:", response.response.headers);
   } catch (error) {
     console.error("Error Approval:", error);
+  }
+
+  const indexerCanisterId = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+
+  try {
+    // Call the icrc1_balance_of function
+    const agentCanister = local(indexerCanisterId);
+    const response = await getAccountTransactions(agentCanister, {
+      owner: Principal.fromText(
+        "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
+      ),
+    });
+    console.log("Response Balance Of:", response);
+  } catch (error) {
+    console.error("Error Balance Of:", error);
   }
 }
 

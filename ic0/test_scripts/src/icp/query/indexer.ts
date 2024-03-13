@@ -1,4 +1,4 @@
-import ic from "ic0";
+import ic, { AgentCanister } from "ic0";
 import { Principal } from "@dfinity/principal";
 import { IDL } from "@dfinity/candid";
 import { HttpAgent } from "@dfinity/agent";
@@ -49,13 +49,12 @@ export async function getBlocks(
  * @returns {Promise<any>} - The initial set of transactions fetched from the canister.
  */
 export async function getAccountTransactions(
-  index_canister_id: string,
-  { owner, subaccount = [] }: { owner: Principal; subaccount: any[] },
+  agent_canister: AgentCanister,
+  { owner, subaccount = [] }: { owner: Principal; subaccount?: any[] },
   max_results: number = 100,
   start: bigint[] = [],
 ) {
   try {
-    const agent_canister = ic(index_canister_id!);
     const account_transactions = await agent_canister.call(
       "get_account_transactions",
       {
