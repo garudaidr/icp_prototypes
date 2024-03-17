@@ -29,6 +29,114 @@ struct BalanceOfQueryRequest {
     owner: Principal,
 }
 
+#[derive(CandidType, Deserialize, Serialize, Clone)]
+struct QueryBlocksQueryRequest {
+    start: u64,
+    length: u64,
+}
+
+use std::collections::HashMap;
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct Response {
+    pub certificate: Option<Vec<u8>>,
+    pub blocks: Vec<Block>,
+    pub chain_length: u64,
+    pub first_block_index: u64,
+    pub archived_blocks: Vec<ArchivedBlock>,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct Block {
+    pub transaction: Transaction,
+    pub timestamp: Timestamp,
+    pub parent_hash: Option<Vec<u8>>,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct Transaction {
+    pub memo: u64,
+    pub icrc1_memo: Option<Vec<u8>>,
+    pub operation: Option<Operation>,
+    pub created_at_time: Timestamp,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct Timestamp {
+    pub timestamp_nanos: u64,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub enum Operation {
+    Approve(Approve),
+    Burn(Burn),
+    Mint(Mint),
+    Transfer(Transfer),
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct Approve {
+    pub fee: E8s,
+    pub from: Vec<u8>,
+    pub allowance_e8s: i64,
+    pub allowance: E8s,
+    pub expected_allowance: Option<E8s>,
+    pub expires_at: Option<Timestamp>,
+    pub spender: Vec<u8>,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct Burn {
+    pub from: Vec<u8>,
+    pub amount: E8s,
+    pub spender: Option<Vec<u8>>,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct Mint {
+    pub to: Vec<u8>,
+    pub amount: E8s,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct Transfer {
+    pub to: Vec<u8>,
+    pub fee: E8s,
+    pub from: Vec<u8>,
+    pub amount: E8s,
+    pub spender: Option<Vec<u8>>,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct E8s {
+    pub e8s: u64,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct ArchivedBlock {
+    pub callback: HashMap<String, Callback>,
+    pub start: u64,
+    pub length: u64,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub enum Callback {
+    Ok { blocks: Vec<Block> },
+    Err(CallbackError),
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub enum CallbackError {
+    BadFirstBlockIndex {
+        requested_index: u64,
+        first_valid_index: u64,
+    },
+    Other {
+        error_message: String,
+        error_code: u64,
+    },
+}
+
 fn count_instructions(start_counter: u64, function_name: String) {
     ic_cdk::println!(
         "Running from {:?}, cycles used: {}",
@@ -46,6 +154,27 @@ fn call_context_count_instructions(start_counter: u64, function_name: String) {
 }
 
 const LEDGER_CANISTER_ID: &str = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+
+async fn call_query_blocks() {
+    let call_start_instructions = ic_cdk::api::call_context_instruction_counter();
+
+    let ledger_principal = Principal::from_text(LEDGER_CANISTER_ID).expect("Invalid principal");
+    let req = QueryBlocksQueryRequest {
+        start: 0,
+        length: 100,
+    };
+    let call_result: CallResult<(Response,)> =
+        ic_cdk::call(ledger_principal, "query_blocks", (req,)).await;
+
+    call_context_count_instructions(
+        call_start_instructions,
+        "ic_cdk::call query_blocks".to_string(),
+    );
+
+    let _ = call_result.map_err(|e| {
+        ic_cdk::println!("An error occurred: {:?}", e);
+    });
+}
 
 async fn update_users(user: User) {
     let start_instructions = ic_cdk::api::call_context_instruction_counter();
@@ -109,6 +238,7 @@ async fn init() {
     let interval = std::time::Duration::from_secs(seconds);
     ic_cdk::println!("Starting a periodic task with interval {:?}", interval);
     let timer_id = ic_cdk_timers::set_timer_interval(interval, || {
+        ic_cdk::spawn(call_query_blocks());
         USERS.with(|_users| {
             for user in _users.borrow().values() {
                 ic_cdk::println!("Running from init: {:?}", user.principal);

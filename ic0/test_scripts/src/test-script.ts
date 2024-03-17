@@ -30,12 +30,15 @@ async function main() {
   const ledgerCanisterId = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 
   // Initialize the agent with the identity
-  const agent = createHostAgentAndIdentityFromSeed(seedPhrase, "http://localhost:8000");
+  const agent = createHostAgentAndIdentityFromSeed(
+    seedPhrase,
+    "http://localhost:8000",
+  );
   const senderIdentity = getIdentityFromSeed(seedPhrase);
   console.log("Principal: ", senderIdentity.getPrincipal().toString());
 
   try {
-    // dfx ledger account-id --of-principal rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae --subaccount 0000000000000000000000000000000000000000000000000000000000000001 (edited) 
+    // dfx ledger account-id --of-principal rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae --subaccount 0000000000000000000000000000000000000000000000000000000000000001 (edited)
     // Call the account_identifier function
     const response = await getAccountIdentifier(
       agent,

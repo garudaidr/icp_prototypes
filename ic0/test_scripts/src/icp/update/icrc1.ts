@@ -34,10 +34,7 @@ export async function transferIcrc1Tokens(
   agent: HttpAgent,
   canisterId: string,
   {
-    to: {
-      owner,
-      subaccount,
-    },
+    to: { owner, subaccount },
     amount,
     from_subaccount,
     fee,
@@ -46,15 +43,15 @@ export async function transferIcrc1Tokens(
   }: {
     to: {
       owner: Principal;
-      subaccount?: Uint8Array; 
+      subaccount?: Uint8Array;
     };
     amount: number;
-    from_subaccount?: Uint8Array; 
-    fee?: number; 
-    memo?: Uint8Array; 
-    created_at_time?: bigint; 
+    from_subaccount?: Uint8Array;
+    fee?: number;
+    memo?: Uint8Array;
+    created_at_time?: bigint;
   },
-) {  
+) {
   // Construct transferArgs, omitting undefined fields
   const transferArgs = {
     to: {
