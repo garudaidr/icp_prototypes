@@ -25,19 +25,43 @@ struct Error {
 }
 
 #[derive(CandidType, Deserialize, Serialize, Clone)]
-struct QueryRequest {
+struct BalanceOfQueryRequest {
     owner: Principal,
 }
 
+fn count_instructions(start_counter: u64, function_name: String) {
+    ic_cdk::println!(
+        "Running from {:?}, cycles used: {}",
+        function_name,
+        ic_cdk::api::instruction_counter() - start_counter
+    );
+}
+
+fn call_context_count_instructions(start_counter: u64, function_name: String) {
+    ic_cdk::println!(
+        "Running from {:?}, cycles used: {}",
+        function_name,
+        ic_cdk::api::call_context_instruction_counter() - start_counter
+    );
+}
+
+const LEDGER_CANISTER_ID: &str = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+
 async fn update_users(user: User) {
+    let start_instructions = ic_cdk::api::call_context_instruction_counter();
     let ledger_principal = Principal::from_text(LEDGER_CANISTER_ID).expect("Invalid principal");
 
-    ic_cdk::println!("Running from set_interval async move: {:?}", user.principal);
-    let req = QueryRequest {
+    let call_start_instructions = ic_cdk::api::call_context_instruction_counter();
+    let req = BalanceOfQueryRequest {
         owner: user.principal.clone(),
     };
     let call_result: CallResult<(u128,)> =
         ic_cdk::call(ledger_principal, "icrc1_balance_of", (req,)).await;
+
+    call_context_count_instructions(
+        call_start_instructions,
+        "ic_cdk::call icrc1_balance_of".to_string(),
+    );
 
     USERS.with(|_users| {
         let mut mutable_users = _users.borrow_mut();
@@ -69,13 +93,15 @@ async fn update_users(user: User) {
             ic_cdk::println!("No matching user found.");
         }
     });
-}
 
-const LEDGER_CANISTER_ID: &str = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+    call_context_count_instructions(start_instructions, "update_users".to_string());
+}
 
 #[ic_cdk::init]
 async fn init() {
-    let seconds = 3;
+    let start_instructions = ic_cdk::api::instruction_counter();
+
+    let seconds = 5;
     INTERVAL_IN_SECONDS.with(|interval_ref| {
         interval_ref.replace(seconds);
     });
@@ -94,15 +120,25 @@ async fn init() {
     TIMERS.with(|timers_ref| {
         timers_ref.replace(timer_id);
     });
+
+    count_instructions(start_instructions, "init".to_string());
 }
 
 #[query]
 fn get_interval() -> Result<u64, Error> {
-    INTERVAL_IN_SECONDS.with(|interval_ref| Ok(interval_ref.borrow().clone()))
+    let start_instructions = ic_cdk::api::instruction_counter();
+
+    let res = INTERVAL_IN_SECONDS.with(|interval_ref| Ok(interval_ref.borrow().clone()));
+
+    count_instructions(start_instructions, "get_interval".to_string());
+
+    res
 }
 
 #[update]
 fn set_interval(seconds: u64) -> Result<u64, Error> {
+    let start_instructions = ic_cdk::api::instruction_counter();
+
     TIMERS.with(|timers_ref| {
         let timer_id = timers_ref.borrow().clone();
         ic_cdk_timers::clear_timer(timer_id);
@@ -126,12 +162,16 @@ fn set_interval(seconds: u64) -> Result<u64, Error> {
         seconds_ref.replace(seconds);
     });
 
+    count_instructions(start_instructions, "set_interval".to_string());
+
     Ok(seconds)
 }
 
 #[update]
 async fn add_user(principal: String) -> Result<String, Error> {
-    USERS.with(|users| {
+    let start_instructions = ic_cdk::api::instruction_counter();
+
+    let res = USERS.with(|users| {
         let mut users = users.borrow_mut();
 
         let new_id = users.len() + 1; // Simple way to generate a new ID
@@ -144,23 +184,35 @@ async fn add_user(principal: String) -> Result<String, Error> {
         let principals: Vec<User> = users.values().cloned().collect();
         let res = serde_json::to_string(&principals).unwrap();
         Ok(res)
-    })
+    });
+
+    count_instructions(start_instructions, "add_user".to_string());
+
+    res
 }
 
 #[query]
 fn get_users() -> Result<String, String> {
-    USERS.with(|users| {
+    let start_instructions = ic_cdk::api::instruction_counter();
+
+    let res = USERS.with(|users| {
         let users = users.borrow();
 
         let principals: Vec<User> = users.values().cloned().collect();
         let res = serde_json::to_string(&principals).unwrap();
         Ok(res)
-    })
+    });
+
+    count_instructions(start_instructions, "get_users".to_string());
+
+    res
 }
 
 #[query]
 fn search_users(query: String) -> Result<String, String> {
-    USERS.with(|users| {
+    let start_instructions = ic_cdk::api::instruction_counter();
+
+    let res = USERS.with(|users| {
         let users = users.borrow();
 
         // Filter the users whose principals contain the query string
@@ -180,7 +232,11 @@ fn search_users(query: String) -> Result<String, String> {
             Ok(res) => Ok(res),
             Err(e) => Err(format!("Failed to serialize principals: {}", e)),
         }
-    })
+    });
+
+    count_instructions(start_instructions, "search_users".to_string());
+
+    res
 }
 
 // Enable Candid export
