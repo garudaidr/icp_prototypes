@@ -43,6 +43,33 @@ To initialize the system, follow these instructions:
 
 The backend canister, crafted in Rust, employs the Candid interface definition language, the IC CDK (Canister Development Kit) macros, and Serde for serialization. It introduces a user store implemented as a binary tree map (`BTreeMap`) for effective user balance management.
 
+### Cycles Used by Function
+
+#### Canister: bd3sg-teaaa-aaaaa-qaaba-cai
+
+- **init**: No explicit cycles usage mentioned.
+- **get_interval**: 445 cycles.
+- **get_users**:
+  - Initial runs: 958 cycles each for three consecutive runs.
+  - After interval adjustment: 1099 cycles, 1042 cycles, 962 cycles, 919 cycles, 999 cycles, and then varying up to 36438 cycles in subsequent runs.
+- **set_interval**:
+  - Initial run: 3412 cycles.
+  - Subsequent adjustments: Cycles not explicitly mentioned, but involved in setting and adjusting intervals.
+- **add_user**: Varied, with one instance using 31052 cycles and another using 55029 cycles.
+- **update_users**:
+  - Initial runs involving `icrc1_balance_of`: 68617 cycles, 127635 cycles. Further runs show increased usage up to 309568 cycles in later operations.
+- **search_users**: 44882 cycles.
+- **query_blocks**: Varied usage observed in multiple runs.
+  - Initial segment average: 1,791,229 cycles over five runs.
+  - Increased segment average: 2,014,344 cycles over three runs.
+  - Overall average including a wider range of runs: 1,811,333 cycles.
+
+#### Canister: ryjl3-tyaaa-aaaaa-aaaba-cai
+
+- **init**: No explicit cycles usage mentioned.
+
+_Note: The logs indicate multiple runs of functions like `get_users`, `set_interval`, `update_users`, and others, each consuming different amounts of cycles. The cycle usage for some functions, especially those related to `set_interval` and `icrc1_balance_of` calls, shows a range of values likely dependent on the operation's complexity and the data processed at the time. The `query_blocks` function, in particular, shows variable cycles usage, suggesting a fluctuation based on the data or operation complexity at different times._
+
 ### Key Components
 
 - **User Store**: A `BTreeMap<usize, User>` mapping user IDs to user records, facilitating efficient balance management.
