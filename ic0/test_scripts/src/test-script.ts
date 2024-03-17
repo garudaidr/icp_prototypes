@@ -30,7 +30,7 @@ async function main() {
   const ledgerCanisterId = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 
   // Initialize the agent with the identity
-  const agent = createHostAgentAndIdentityFromSeed(seedPhrase);
+  const agent = createHostAgentAndIdentityFromSeed(seedPhrase, "http://localhost:8000");
   const senderIdentity = getIdentityFromSeed(seedPhrase);
   console.log("Principal: ", senderIdentity.getPrincipal().toString());
 
@@ -72,9 +72,9 @@ async function main() {
           "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
         ),
       },
-      amount: 100_000,
+      amount: 100_000_000,
     });
-    console.log("Response Transfer:", response.response.headers);
+    console.log("Response Transfer:", response.response);
   } catch (error) {
     console.error("Error Approval:", error);
   }

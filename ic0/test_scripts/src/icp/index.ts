@@ -59,5 +59,6 @@ export function createHostAgentAndIdentityFromSeed(
     host,
     identity,
     fetch,
+    verifyQuerySignatures: false,
   });
 }
