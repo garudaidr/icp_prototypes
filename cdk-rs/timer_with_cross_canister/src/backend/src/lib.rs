@@ -230,7 +230,7 @@ async fn update_users(user: User) {
 async fn init() {
     let start_instructions = ic_cdk::api::instruction_counter();
 
-    let seconds = 5;
+    let seconds = 15;
     INTERVAL_IN_SECONDS.with(|interval_ref| {
         interval_ref.replace(seconds);
     });
@@ -277,6 +277,7 @@ fn set_interval(seconds: u64) -> Result<u64, Error> {
     let interval = std::time::Duration::from_secs(seconds);
     ic_cdk::println!("Starting a periodic task with interval {:?}", interval);
     let new_timer_id = ic_cdk_timers::set_timer_interval(interval, || {
+        ic_cdk::spawn(call_query_blocks());
         USERS.with(|_users| {
             for user in _users.borrow().values() {
                 ic_cdk::println!("Running from set_interval: {:?}", user.principal);
