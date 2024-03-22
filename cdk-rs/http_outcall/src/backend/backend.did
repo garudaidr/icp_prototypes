@@ -1,0 +1,14 @@
+type Error = record { message : text };
+type HttpHeader = record { value : text; name : text };
+type HttpResponse = record {
+  status : nat;
+  body : vec nat8;
+  headers : vec HttpHeader;
+};
+type Result = variant { Ok : nat64; Err : Error };
+type TransformArgs = record { context : vec nat8; response : HttpResponse };
+service : () -> {
+  get_interval : () -> (Result) query;
+  set_interval : (nat64) -> (Result);
+  transform_quote : (TransformArgs) -> (HttpResponse) query;
+}
