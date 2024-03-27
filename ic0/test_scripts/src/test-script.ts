@@ -25,7 +25,7 @@ const fromHexString = (hexString) =>
   Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
 
 async function main() {
-  const seedPhrase = argv.s;
+  const seedPhrase = "split total master input balance short panel color leader anger wife tilt swarm mind castle axis element nose spider one slim outside stumble biology";
 
   const ledgerCanisterId = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 
@@ -37,35 +37,35 @@ async function main() {
   const senderIdentity = getIdentityFromSeed(seedPhrase);
   console.log("Principal: ", senderIdentity.getPrincipal().toString());
 
-  try {
-    // dfx ledger account-id --of-principal rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae --subaccount 0000000000000000000000000000000000000000000000000000000000000001 (edited)
-    // Call the account_identifier function
-    const response = await getAccountIdentifier(
-      agent,
-      ledgerCanisterId,
-      Principal.fromText(
-        "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
-      ),
-      fromHexString(
-        "0000000000000000000000000000000000000000000000000000000000000001",
-      ),
-    );
-    console.log("Response Subaccount Account Identifier:", response);
-  } catch (error) {
-    console.error("Error:", error);
-  }
+  // try {
+  //   // dfx ledger account-id --of-principal rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae --subaccount 0000000000000000000000000000000000000000000000000000000000000001 (edited)
+  //   // Call the account_identifier function
+  //   const response = await getAccountIdentifier(
+  //     agent,
+  //     ledgerCanisterId,
+  //     Principal.fromText(
+  //       "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
+  //     ),
+  //     fromHexString(
+  //       "0000000000000000000000000000000000000000000000000000000000000001",
+  //     ),
+  //   );
+  //   console.log("Response Subaccount Account Identifier:", response);
+  // } catch (error) {
+  //   console.error("Error:", error);
+  // }
 
-  try {
-    // Call the icrc1_balance_of function
-    const response = await getIcrc1Balance(agent, ledgerCanisterId, {
-      owner: Principal.fromText(
-        "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
-      ),
-    });
-    console.log("Response Balance Of:", response);
-  } catch (error) {
-    console.error("Error Balance Of:", error);
-  }
+  // try {
+  //   // Call the icrc1_balance_of function
+  //   const response = await getIcrc1Balance(agent, ledgerCanisterId, {
+  //     owner: Principal.fromText(
+  //       "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
+  //     ),
+  //   });
+  //   console.log("Response Balance Of:", response);
+  // } catch (error) {
+  //   console.error("Error Balance Of:", error);
+  // }
 
   try {
     // Call the icrc1_transfer function
@@ -82,20 +82,20 @@ async function main() {
     console.error("Error Approval:", error);
   }
 
-  const indexerCanisterId = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+  // const indexerCanisterId = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 
-  try {
-    // Call the icrc1_balance_of function
-    const agentCanister = local(indexerCanisterId);
-    const response = await getAccountTransactions(agentCanister, {
-      owner: Principal.fromText(
-        "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
-      ),
-    });
-    console.log("Response Balance Of:", response);
-  } catch (error) {
-    console.error("Error Balance Of:", error);
-  }
+  // try {
+  //   // Call the icrc1_balance_of function
+  //   const agentCanister = local(indexerCanisterId);
+  //   const response = await getAccountTransactions(agentCanister, {
+  //     owner: Principal.fromText(
+  //       "rs5mh-o6yer-kpzmc-vgwfe-7ye7l-5olpo-gj7ud-xxwmm-cnoa2-v6dyr-aae",
+  //     ),
+  //   });
+  //   console.log("Response Balance Of:", response);
+  // } catch (error) {
+  //   console.error("Error Balance Of:", error);
+  // }
 }
 
 main();

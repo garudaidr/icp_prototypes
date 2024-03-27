@@ -27,6 +27,37 @@ fn post_upgrade() {
     RUNTIME_STATE.with(|state| *state.borrow_mut() = runtime_state)
 }
 
+#[query]
+fn get_all() -> Result {
+    let conn = ic_sqlite::CONN.lock().unwrap();
+    let mut stmt = match conn.prepare("SELECT username FROM users;") {
+        Ok(e) => e,
+        Err(err) => {
+            return Err(Error::CanisterError {
+                message: format!("{:?}", err),
+            })
+        }
+    };
+    let user_iter = match stmt.query_map((), |row| {
+        Ok(UserQuery {
+            username: row.get(0).unwrap(),
+        })
+    }) {
+        Ok(e) => e,
+        Err(err) => {
+            return Err(Error::CanisterError {
+                message: format!("{:?}", err),
+            })
+        }
+    };
+    let mut users = Vec::new();
+    for user in user_iter {
+        users.push(user.unwrap().username);
+    }
+    let res = serde_json::to_string(&users).unwrap();
+    Ok(res)
+}
+
 #[update]
 fn insert(username: String) -> Result {
     let conn = ic_sqlite::CONN.lock().unwrap();

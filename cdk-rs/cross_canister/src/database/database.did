@@ -3,4 +3,4 @@ type Error = variant {
   InvalidCanister;
 };
 type Result = variant { Ok : text; Err : Error };
-service : { insert : (text) -> (Result) }
+service : { get_all : () -> (Result) query; insert : (text) -> (Result) }

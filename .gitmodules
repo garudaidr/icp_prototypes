@@ -1,0 +1,24 @@
+[submodule "motoko/demo-motoko"]
+	path = motoko/demo-motoko
+	url = git@github.com:steve24grd/demo-motoko.git
+[submodule "motoko/demo-icp-ledger"]
+	path = motoko/demo-icp-ledger
+	url = git@github.com:steve24grd/demo-icp-ledger.git
+[submodule "motoko/demo-icp-index"]
+	path = motoko/demo-icp-index
+	url = git@github.com:steve24grd/demo-icp-index.git
+[submodule "cdk-rs/demo-icp-rust"]
+	path = cdk-rs/demo-icp-rust
+	url = git@github.com:steve24grd/demo-icp-rust.git
+[submodule "cdk-rs/demo-icp-pubsub"]
+	path = cdk-rs/demo-icp-pubsub
+	url = git@github.com:steve24grd/demo-icp-pubsub.git
+[submodule "cdk-rs/demo-icp-rust-counter"]
+	path = cdk-rs/demo-icp-rust-counter
+	url = git@github.com:steve24grd/demo-icp-rust-counter.git
+[submodule "cdk-rs/icp-rust-demo-timer"]
+	path = cdk-rs/icp-rust-demo-timer
+	url = git@github.com:steve24grd/icp-rust-demo-timer.git
+[submodule "ic0/icp-ledger-interactions"]
+	path = ic0/icp-ledger-interactions
+	url = git@github.com:steve24grd/icp-ledger-interactions
