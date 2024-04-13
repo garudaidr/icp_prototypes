@@ -13,6 +13,18 @@ class App {
     e.preventDefault();
     const name = document.getElementById('name').value;
     this.greeting = await motoko_new_backend.greet(name);
+
+    let _names = await motoko_new_backend.listNames();
+    let _namesListHtml = '';
+    const _namesList = _names.map(name => name).join('').split(',');
+    _namesList.forEach(element => {
+      if (element.length > 0) {
+        _namesListHtml += `<li>${element}</li>`;
+      }
+    });
+    document.getElementById('nameListSection').style.display = 'block';
+    document.getElementById('nameList').innerHTML = `<ul>${_namesListHtml}</ul>`;
+
     this.#render();
   };
 
@@ -28,6 +40,10 @@ class App {
           <button type="submit">Click Me!</button>
         </form>
         <section id="greeting">${this.greeting}</section>
+        <section id="nameListSection">
+          <label for="name">List of names</label>
+          <section id="nameList"></section>
+        </section>
       </main>
     `;
     render(body, document.getElementById('root'));

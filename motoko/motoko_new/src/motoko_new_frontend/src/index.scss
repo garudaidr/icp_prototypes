@@ -26,12 +26,12 @@ button[type="submit"] {
   float: right;
 }
 
-#greeting {
+#greeting, #nameListSection {
   margin: 10px auto;
   padding: 10px 60px;
   border: 1px solid #222;
 }
 
-#greeting:empty {
+#greeting:empty, #nameListSection {
   display: none;
 }
