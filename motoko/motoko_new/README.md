@@ -1,10 +1,12 @@
-# motoko_new
+# Motoko User Name Management
 
-Welcome to your new motoko_new project and to the internet computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+![App Main Page](image.png)
+
+Welcome to your new motoko_username_management_project project and to the internet computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
 
 To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
 
-To learn more before you start working with motoko_new, see the following documentation available online:
+To learn more before you start working with motoko_username_management_project, see the following documentation available online:
 
 - [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
 - [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
